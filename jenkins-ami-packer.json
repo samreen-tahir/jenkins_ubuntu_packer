@@ -1,0 +1,43 @@
+{
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "{{user `region`}}",
+    "associate_public_ip_address": "{{user `associate_public_ip_address`}}",
+    "ssh_keypair_name": "{{user `ssh_keypair_name`}}",
+    "ssh_private_key_file": "{{user `ssh_private_key_file`}}",
+    "launch_block_device_mappings": [
+    {
+      "device_name": "/dev/sda1",
+      "volume_size": 50,
+      "volume_type": "gp2",
+      "delete_on_termination": false
+    }
+  ],
+    "source_ami_filter": {
+      "filters": {
+        "virtualization-type": "hvm",
+        "name": "ubuntu/images/*ubuntu-xenial-16.04-amd64-server-*",
+        "root-device-type": "ebs"
+      },
+      "owners": ["099720109477"],
+      "most_recent": true
+    },
+    "instance_type": "m4.large",
+    "ssh_username": "ubuntu",
+    "ami_name": "jenkins-ubuntu {{timestamp}}",
+    "subnet_id": "{{user `subnet_id`}}"
+  }],
+ "provisioners": [{
+        "type": "shell",
+        "inline": [
+		"sudo apt-get install openjdk-8-jre-headless -y",
+            "wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -",
+            "sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'",
+            "sudo apt-get update",
+            "sudo apt-get install -y jenkins"
+        ]
+    }]
+	
+}
